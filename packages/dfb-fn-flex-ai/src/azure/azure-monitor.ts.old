@@ -1,0 +1,51 @@
+import { AzureMonitorTraceExporter } from '@azure/monitor-opentelemetry-exporter';
+import { NodeTracerProvider } from '@opentelemetry/node';
+import { SimpleSpanProcessor } from '@opentelemetry/tracing';
+import { trace, context, DiagConsoleLogger, DiagLogLevel, diag } from '@opentelemetry/api';
+import { DefaultAzureCredential } from '@azure/identity';
+
+/*
+Usage
+
+import AzureMonitorLogger from './azure-monitor';
+
+const logger = new AzureMonitorLogger();
+
+logger.logCustomMessage('This is a custom log message', { customAttribute: 'customValue' });
+
+// samples: https://github.com/Azure/azure-sdk-for-js/tree/main/sdk/monitor/monitor-opentelemetry-exporter/samples/
+*/
+
+class AzureMonitorLogger {
+    private tracerProvider: NodeTracerProvider;
+
+    constructor() {
+        const credential = new DefaultAzureCredential();
+        const exporter = new AzureMonitorTraceExporter({
+            azureMonitorExporterOptions: {
+                credential: credential
+            }
+        });
+
+        this.tracerProvider = new NodeTracerProvider();
+        if(process.env.LOGGING === 'true'){
+            this.tracerProvider.setLogger(new DiagConsoleLogger(), DiagLogLevel.ALL);
+        }
+        this.tracerProvider.addSpanProcessor(new SimpleSpanProcessor(exporter));
+        this.tracerProvider.register();
+    }
+
+    logCustomMessage(message: string, attributes: { [key: string]: any } = {}): void {
+        const tracer = trace.getTracer('default');
+        const span = tracer.startSpan('custom-log', {
+            attributes: {
+                message,
+                ...attributes
+            }
+        });
+
+        span.end();
+    }
+}
+
+export default AzureMonitorLogger;
