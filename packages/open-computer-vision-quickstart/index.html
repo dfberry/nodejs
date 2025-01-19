@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenCV.js Quickstart</title>
+</head>
+<body>
+  <input type="file" id="fileInput">
+  <img id="imageSrc" alt="No Image">
+  <canvas id="canvasOutput"></canvas>
+  <div id="status">Loading OpenCV.js...</div>
+
+  <!-- Include the OpenCV.js script -->
+  <script>
+    var Module = {
+      // https://emscripten.org/docs/api_reference/module.html#Module.onRuntimeInitialized
+      onRuntimeInitialized() {
+        document.getElementById('status').innerHTML = 'OpenCV.js is ready.';
+      }
+    };
+  </script>
+  <script src="./opencv.js"></script>
+  <script>
+    let imgElement = document.getElementById('imageSrc');
+    let inputElement = document.getElementById('fileInput');
+    inputElement.addEventListener('change', (e) => {
+      let file = e.target.files[0];
+      console.log('file', file);
+
+      let reader = new FileReader();
+      reader.onload = function(event) {
+        imgElement.src = event.target.result;
+        console.log('imgElement.src', imgElement.src);
+      };
+      reader.readAsDataURL(file);
+    }, false);
+
+    imgElement.onload = async function () {
+    console.log('imgElement.src', imgElement.src);
+    try {
+      let mat = await cv.imread(imgElement);
+      await cv.imshow('canvasOutput', mat);
+      mat.delete();
+    } catch (error) {
+      console.error('Error processing image:', error);
+    }
+  };
+  </script>
+</body>
+</html>

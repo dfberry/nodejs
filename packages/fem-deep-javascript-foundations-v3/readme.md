@@ -36,3 +36,18 @@ Boolean()
 
 falsy is a look up list - if it isn't on the falsy list then it is a truthy
 
+https://github.com/getify?tab=repositories&q=eslint&type=&language=&sort=
+
+## Equality
+
+`==` only compares primitives, if you use something other than a primitive, it will coerce into a primitives
+
+* if types are same, use ====
+
+* Only use `==` when you know the types
+* Don't use `==` with non-primitives
+* Don't use `==` with `== true` or `==false`
+* Prefer `==` in all places, get your items to compare to primitives explicity before using `==`
+* If you don't know the types, you don't understand the code - so refactor to know the types and obvious to reader or use `===` to signal to the reader that you don't know the types. If you don't know the types, that is equivalent to assuming type conversion.
+
+TBD: read more about `Object.is`
